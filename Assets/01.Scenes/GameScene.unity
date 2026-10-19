@@ -245,6 +245,8 @@ GameObject:
   - component: {fileID: 330585547}
   - component: {fileID: 330585548}
   - component: {fileID: 330585549}
+  - component: {fileID: 330585550}
+  - component: {fileID: 330585551}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -396,6 +398,69 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraFollow
   _target: {fileID: 659659654}
+--- !u!114 &330585550
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 330585543}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4be10e1e11a2aae48b5490a9e4aef73c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CameraViewSwitcher
+  _switchKey: 118
+  _currentViewMode: 0
+  _firstPersonView:
+    _viewName: "1\uC778\uCE6D (First Person)"
+    _positionOffset: {x: 0, y: 0, z: 0}
+    _rotationEuler: {x: 0, y: 0, z: 0}
+    _followTargetRotation: 1
+    _useMouseRotation: 1
+  _thirdPersonView:
+    _viewName: "3\uC778\uCE6D (Third Person)"
+    _positionOffset: {x: 0, y: 2, z: -4}
+    _rotationEuler: {x: 15, y: 0, z: 0}
+    _followTargetRotation: 1
+    _useMouseRotation: 0
+  _shoulderView:
+    _viewName: "\uC204\uB354\uBDF0 (Shoulder View)"
+    _positionOffset: {x: 0.7, y: 1.5, z: -2}
+    _rotationEuler: {x: 10, y: 0, z: 0}
+    _followTargetRotation: 1
+    _useMouseRotation: 0
+  _quarterView:
+    _viewName: "\uCFFC\uD130\uBDF0 (Quarter View)"
+    _positionOffset: {x: 0, y: 10, z: -8}
+    _rotationEuler: {x: 45, y: 0, z: 0}
+    _followTargetRotation: 0
+    _useMouseRotation: 0
+  _topDownView:
+    _viewName: "\uD0D1\uB2E4\uC6B4 (Top-Down View)"
+    _positionOffset: {x: 0, y: 12, z: -0.01}
+    _rotationEuler: {x: 90, y: 0, z: 0}
+    _followTargetRotation: 0
+    _useMouseRotation: 0
+  _sideView:
+    _viewName: "\uC0AC\uC774\uB4DC\uBDF0 (Side View)"
+    _positionOffset: {x: 10, y: 2, z: 0}
+    _rotationEuler: {x: 0, y: -90, z: 0}
+    _followTargetRotation: 0
+    _useMouseRotation: 0
+--- !u!114 &330585551
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 330585543}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 84dd31404ba1b744299844ae065e92ca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CameraController
+  _target: {fileID: 0}
 --- !u!1 &360273014
 GameObject:
   m_ObjectHideFlags: 0
