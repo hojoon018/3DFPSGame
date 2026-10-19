@@ -20,6 +20,7 @@ public class PlayerMove : MonoBehaviour
         // 2. 키보드 입력에 따라 방향을 구한다.
         Vector3 direction = new Vector3(h, 0, v);
         direction.Normalize(); // 대각선이어도 방향의 길이를 1로 바꾸기 위해
+        // 캐릭터의 회전 방향을 기준으로 로컬 방향 벡터를 월드 방향 벡터로 변환한다.
         direction = transform.TransformDirection(direction);
         // 로컬 좌표계 : 한 대상을 중심
         // 월드 좌표계 : 세상을 중심
