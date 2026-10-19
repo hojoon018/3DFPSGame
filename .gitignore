@@ -79,3 +79,7 @@ crashlytics-build.properties
 
 # macOS Finder
 .DS_Store
+
+# Gemini CLI
+.gemini/
+gha-creds-*.json
