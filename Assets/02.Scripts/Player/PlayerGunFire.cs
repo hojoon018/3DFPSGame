@@ -1,15 +1,25 @@
+using System;
 using UnityEngine;
 
 // 마우스 왼쪽 버튼을 누르면 바라보는 방향으로 총알을 발사하고 싶다.
 public class PlayerGunFire : MonoBehaviour
 {
+    private const int MaxBullets = 50;
+
     [SerializeField] private ParticleSystem _hitEffectPrefab;
 
     [Header("스탯")]
-    [SerializeField] float _range = 100f; // 사거리
-    [SerializeField] float _damage = 10f; // 공격력
-    [SerializeField] float _fireInterval = 0.1f; //발사 속도
+    [SerializeField] private float _range = 100f; // 사거리
+    [SerializeField] private float _damage = 10f; // 공격력
+    [SerializeField] private float _fireInterval = 0.1f; //발사 속도
+    [SerializeField] private float _currentBullet = 0;
+    [SerializeField] private float _reloadTime = 2f;
     private float _fireTimer = 0f;
+
+    private void Awake()
+    {
+        _currentBullet = MaxBullets;
+    }
 
     private void Update()
     {
@@ -17,11 +27,22 @@ public class PlayerGunFire : MonoBehaviour
         _fireTimer -= Time.deltaTime;
 
         // 1. 마우스 왼쪽 버튼 입력 받기
-        if (Input.GetButton("Fire1") && _fireTimer <= 0f)
+        if (Input.GetButton("Fire1") && _fireTimer <= 0f && _currentBullet > 0)
         {
             _fireTimer = _fireInterval;
             Shoot();
+            _currentBullet--;
         }
+
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            Invoke("Reload", _reloadTime);
+        }
+    }
+
+    private void Reload()
+    {
+        _currentBullet = MaxBullets;
     }
 
     private void Shoot()
