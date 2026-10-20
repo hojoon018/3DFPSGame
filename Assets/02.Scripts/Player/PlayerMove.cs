@@ -34,6 +34,11 @@ public class PlayerMove : MonoBehaviour
         {
             _yVelocity += Gravity * Time.deltaTime;
         }
+        else
+        {
+            // 땅에 서있으면 중력 초기화
+            _yVelocity = 0f;
+        }
 
         // 4. 만약 점프키를 누르면 점프를 한다.
         if (Input.GetButtonDown("Jump") && _characterController.isGrounded) // 중재자 패턴
