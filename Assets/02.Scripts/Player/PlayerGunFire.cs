@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using System.Collections;
 
 // 마우스 왼쪽 버튼을 누르면 바라보는 방향으로 총알을 발사하고 싶다.
 public class PlayerGunFire : MonoBehaviour
@@ -15,8 +16,7 @@ public class PlayerGunFire : MonoBehaviour
 
     private float _fireTimer = 0f;
     private int _bulletCount = 0;
-    private bool _isReloading = false;
-    private float _reloadingTimer = 0f;
+    private Coroutine _reloadingCoroutine = null;
 
     private void Start()
     {
@@ -29,35 +29,40 @@ public class PlayerGunFire : MonoBehaviour
         _fireTimer -= Time.deltaTime;
 
         // 1. 마우스 왼쪽 버튼 입력 받기
-        if (Input.GetButton("Fire1") && _fireTimer <= 0f && _bulletCount > 0 && !_isReloading)
+        if (Input.GetButton("Fire1") && _fireTimer <= 0f && _bulletCount > 0)
         {
             _bulletCount--;
             _fireTimer = _fireInterval;
             Shoot();
+
+            // 이 방식은 : 이 모노비헤이비어가 등록한 모든 코루틴을 실행 취소
+            // StopAllCoroutines();
+
+            if (_reloadingCoroutine != null)
+            {
+                StopCoroutine(_reloadingCoroutine);
+                Debug.Log("재장전 취소!");
+                _reloadingCoroutine = null;
+            }
         }
 
         // 2. R키 누르면 총알 재장전
-        if (Input.GetKey(KeyCode.R) && _isReloading == false)
+        if (Input.GetKey(KeyCode.R) && _reloadingCoroutine == null)
         {
-            _isReloading = true;
-            _reloadingTimer = 0f;
-        }
-
-        // 3. 재장전 중
-        if (_isReloading)
-        {
-            _reloadingTimer += Time.deltaTime;
-            if (_reloadingTimer >= _reloadingTime)
-            {
-                _isReloading = false;
-                Reloading();
-            }
+            _reloadingCoroutine = StartCoroutine(Reloading_Coroutine());
         }
     }
 
-    private void Reloading()
+    private IEnumerator Reloading_Coroutine()
     {
+        Debug.Log("재장전 시작!");
+
+        yield return new WaitForSeconds(_reloadingTime);
+
         _bulletCount = _maxBulletCount;
+
+        Debug.Log("재장전 완료!");
+        _reloadingCoroutine = null;
     }
 
     private void Shoot()
