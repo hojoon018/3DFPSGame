@@ -1730,7 +1730,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Zombie
   _detectDistance: 8
-  _comebackDistance: 15
+  _comebackDistance: 12
+  _attackRange: 1.5
+  _attackInterval: 1.2
   _moveSpeed: 5
 --- !u!1 &1537766202
 GameObject:
