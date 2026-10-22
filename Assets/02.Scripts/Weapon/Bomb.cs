@@ -38,8 +38,6 @@ public class Bomb : MonoBehaviour, IPoolable
         ParticleSystem effect = Instantiate(_explositionEffectPrefab, transform.position, Quaternion.identity);
         effect.Play();
 
-        Debug.Log(collision.gameObject.name);
-
         // 폭탄을 Destroy 대신 LeanPool에 반환
         LeanPool.Despawn(gameObject);
     }
