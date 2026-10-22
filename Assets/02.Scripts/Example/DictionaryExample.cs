@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-public class DictionaryTest : MonoBehaviour
+public class DictionaryExample : MonoBehaviour
 {
     // 지금까지 배웠던 배열이나 List는 인덱스를 이용해 요소에 접근했다
     // 하지만 딕셔너리(사전)은 요소를 저장할 때 "키"와 "값"을 쌍으로 저장한다.
