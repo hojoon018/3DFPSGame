@@ -15,6 +15,7 @@ using System.Collections;
 public enum ZombieState
 {
     Idle, // 대기 : 제자리에서 플레이어를 기다린다
+    Patrol, // 순찰 : 순찰 지점을 순서대로 이동한다
     Trace, // 추격 : 플레이어를 쫓아간다
     Comeback, // 복귀 : 처음 자리로 돌아간다
     Attack, // 공격 : 일정 시간마다 플레이어를 때린다
@@ -22,7 +23,7 @@ public enum ZombieState
     Death, // 죽음 : 쓰러지고 잠시 뒤 사라진다
 }
 
-public class Zombie : MonoBehaviour
+public class Zombie : MonoBehaviour, IDamageable
 {
     [Header("스탯")]
     [SerializeField] private float _detectDistance = 8; // 플레이어를 발견하는 거리
@@ -32,6 +33,13 @@ public class Zombie : MonoBehaviour
     [SerializeField] private float _moveSpeed = 5; // 이동속도
     [SerializeField] private float _health = 30;
 
+    [Header("순찰 설정")]
+    [SerializeField] private Transform[] _waypoints; // 순찰할 지점들 (2개 이상 등록 가능)
+    [SerializeField] private float _idleWaitTime = 2f; // 지점 도착 후 대기 시간
+    [SerializeField] private float _patrolSpeed = 2.5f; // 순찰 이동 속도
+
+    private int _currentWaypointIndex = 0;
+    private float _idleTimer = 0f;
     private float _attackTimer = 0f;
     private CharacterController _controller;
     private Vector3 _startPosition;
@@ -55,6 +63,10 @@ public class Zombie : MonoBehaviour
         {
             case ZombieState.Idle:
                 Idle();
+                break;
+
+            case ZombieState.Patrol:
+                Patrol();
                 break;
 
             case ZombieState.Trace:
@@ -124,9 +136,69 @@ public class Zombie : MonoBehaviour
         float distance = Vector3.Distance(transform.position, _player.transform.position);
         if (distance < _detectDistance)
         {
+            _idleTimer = 0f;
             Debug.Log($"{_state} -> Trace");
             _state = ZombieState.Trace;
+            return;
         }
+
+        // 순찰 지점이 지정되어 있다면 일정 시간 대기 후 순찰을 시작한다
+        if (_waypoints != null && _waypoints.Length > 0)
+        {
+            _idleTimer += Time.deltaTime;
+            if (_idleTimer >= _idleWaitTime)
+            {
+                _idleTimer = 0f;
+                Debug.Log($"{_state} -> Patrol");
+                _state = ZombieState.Patrol;
+            }
+        }
+    }
+
+    // 순찰 : 지정된 순찰 지점을 순서대로 이동한다
+    private void Patrol()
+    {
+        // Todo. Walk 애니메이션 실행
+
+        // 플레이어가 감지 거리 안에 들어오면 즉시 추격한다
+        float distance = Vector3.Distance(transform.position, _player.transform.position);
+        if (distance < _detectDistance)
+        {
+            Debug.Log($"{_state} -> Trace");
+            _state = ZombieState.Trace;
+            return;
+        }
+
+        // 등록된 순찰 지점이 없다면 Idle 상태로 유지한다
+        if (_waypoints == null || _waypoints.Length == 0)
+        {
+            _state = ZombieState.Idle;
+            return;
+        }
+
+        Transform target = _waypoints[_currentWaypointIndex];
+        if (target == null)
+        {
+            _currentWaypointIndex = (_currentWaypointIndex + 1) % _waypoints.Length;
+            return;
+        }
+
+        Vector3 direction = target.position - transform.position;
+        direction.y = 0f;
+
+        // 목표 지점에 도착했으면 다음 지점으로 변경하고 Idle 상태로 전이한다
+        if (direction.magnitude < 0.5f)
+        {
+            _currentWaypointIndex = (_currentWaypointIndex + 1) % _waypoints.Length;
+            Debug.Log($"{_state} -> Idle");
+            _state = ZombieState.Idle;
+            return;
+        }
+
+        // 목표 지점을 향해 회전하고 이동한다
+        direction.Normalize();
+        transform.forward = direction;
+        _controller.SimpleMove(direction * _patrolSpeed);
     }
 
     // 추격 : 플레이어를 쫓아간다

@@ -7,6 +7,8 @@ public class Bomb : MonoBehaviour, IPoolable
 {
     [SerializeField] private ParticleSystem _explositionEffectPrefab;
     [SerializeField] private Rigidbody _rigidbody;
+    [SerializeField] private float _explosionRange = 4.5f;
+    [SerializeField] private float _damage = 100;
 
     public Rigidbody Rigidbody => _rigidbody != null ? _rigidbody : (_rigidbody = GetComponent<Rigidbody>());
 
@@ -38,7 +40,23 @@ public class Bomb : MonoBehaviour, IPoolable
         ParticleSystem effect = Instantiate(_explositionEffectPrefab, transform.position, Quaternion.identity);
         effect.Play();
 
+        ApplyAreaDamage();
+
         // 폭탄을 Destroy 대신 LeanPool에 반환
         LeanPool.Despawn(gameObject);
+    }
+
+    private void ApplyAreaDamage()
+    {
+        // 0. 주위에 있는 드럼통들을 모두 찾는다.
+        // Physics.OverlapSpere(원점, 반지름, 찾을 레이어들)
+        Collider[] colliders =
+            Physics.OverlapSphere(transform.position, _explosionRange, LayerMask.GetMask("Drum", "Zombie"));
+
+        // 1. 드럼통과 좀비들에게 대미지를 준다.
+        foreach (Collider col in colliders)
+        {
+            col.GetComponent<IDamageable>()?.TakeDamage(_damage);
+        }
     }
 }
