@@ -56,7 +56,14 @@ public class Bomb : MonoBehaviour, IPoolable
         // 1. 드럼통과 좀비들에게 대미지를 준다.
         foreach (Collider col in colliders)
         {
-            col.GetComponent<IDamageable>()?.TakeDamage(_damage);
+            DamageInfo damageInfo = new()
+            {
+                Value = _damage,
+                HitPoint = col.ClosestPoint(transform.position),
+                HitNormal = (transform.position - col.ClosestPoint(transform.position)).normalized
+            };
+
+            col.GetComponent<IDamageable>()?.TakeDamage(damageInfo);
         }
     }
 }

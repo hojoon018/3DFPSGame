@@ -89,7 +89,13 @@ public class PlayerGunFire : MonoBehaviour
             effect.transform.forward = hitInfo.normal; // 수직 위치로 회전
             effect.Play();
 
-            hitInfo.collider.GetComponent<IDamageable>()?.TakeDamage(_damage);
+            // 데미지 구조체 만들기
+            DamageInfo damageInfo = new DamageInfo();
+            damageInfo.Value = _damage;
+            damageInfo.HitPoint = hitInfo.point;
+            damageInfo.HitNormal = hitInfo.normal;
+
+            hitInfo.collider.GetComponent<IDamageable>()?.TakeDamage(damageInfo);
 
             // 맞은 대상이 좀비라면 TakeDamage
             /*if (hitInfo.collider.TryGetComponent(out Zombie zombie))
