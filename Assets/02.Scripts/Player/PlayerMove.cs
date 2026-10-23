@@ -6,11 +6,12 @@ public class PlayerMove : MonoBehaviour
 {
     private const float Gravity = -20f;
     private const int MaxJumps = 2;
-    private const float MaxStamina = 100f;
+    public const float MaxStamina = 100f;
 
     private float _yVelocity = 0f; // 위아래 속도, 매 프레임마다 중력 가속도가 붙는다.
     private int _jumpCount = 0;
     private float _stamina = 0f;
+
 
     [Header("스탯")]
     [SerializeField] private float _moveSpeed = 7f;
@@ -19,9 +20,13 @@ public class PlayerMove : MonoBehaviour
     [SerializeField] private float _staminaRecovery = 15f;
     [SerializeField] private float _sprintCost = 10f;
     [SerializeField] private float _jumpCost = 20f;
+    [SerializeField] private float _playerHealth;
+    [SerializeField] private float _playerMaxHealth = 100;
 
     [Header("컴포넌트")]
     [SerializeField] private CharacterController _characterController;
+
+    public float Stamina => _stamina;
 
     private void Awake()
     {
@@ -31,6 +36,8 @@ public class PlayerMove : MonoBehaviour
 
     private void Update()
     {
+        _stamina = Mathf.Min(MaxStamina, _stamina + _staminaRecovery * Time.deltaTime);
+
         // 1. 키보드 입력을 받는다.
         float h = Input.GetAxisRaw("Horizontal"); // -1, 0, 1
         float v = Input.GetAxisRaw("Vertical"); // -1, 0, 1
@@ -70,11 +77,7 @@ public class PlayerMove : MonoBehaviour
         if (isSprint)
         {
             currentSpeed = _sprintSpeed;
-            _stamina -= _sprintCost;
-        }
-        else
-        {
-            _stamina = Mathf.Min(MaxStamina, _stamina + _staminaRecovery * Time.deltaTime);
+            _stamina -= _sprintCost * Time.deltaTime;
         }
 
         Vector3 velocity = direction * currentSpeed;
