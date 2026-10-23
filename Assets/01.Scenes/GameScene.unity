@@ -1849,7 +1849,7 @@ MonoBehaviour:
   _attackInterval: 1.2
   _moveSpeed: 5
   _health: 30
-  _bloodParticle: {fileID: 0}
+  _bloodSprayPrefab: {fileID: 1000013355911406, guid: d32aa916f50cac94db11e6f19821a58f, type: 3}
   _waypoints: []
   _idleWaitTime: 2
   _patrolSpeed: 2.5
