@@ -25,6 +25,8 @@ public class PlayerGunFire : MonoBehaviour
 
     private void Update()
     {
+        if (GameManager.Instance.State != GameState.Playing) return;
+
         // 0. 발사 타이머를 지난 시간만큼 줄인다.
         _fireTimer -= Time.deltaTime;
 
@@ -67,6 +69,8 @@ public class PlayerGunFire : MonoBehaviour
 
     private void Shoot()
     {
+        if (GameManager.Instance.State != GameState.Playing) return;
+
         // Ray : 레이저(시작위치, 날아갈 방향)
         // Physics.RayCast : 레이저를 발사
         // RayCastHit : 레이저가 물체와 부딪히면 그 정보를 저장하는 구조체

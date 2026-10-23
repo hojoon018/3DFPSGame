@@ -34,6 +34,8 @@ public class PlayerMove : MonoBehaviour
 
     private void Update()
     {
+        if (GameManager.Instance.State != GameState.Playing) return;
+
         _stamina = Mathf.Min(MaxStamina, _stamina + _staminaRecovery * Time.deltaTime);
 
         // 1. 키보드 입력을 받는다.

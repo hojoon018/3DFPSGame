@@ -22,7 +22,8 @@ public class Player : MonoBehaviour, IDamageable
 
         _health -= damageInfo.Value;
 
-        _uiHitEffect.Flash();
+        _uiHitEffect.Fade(0.7f);
+
         Debug.Log($"플레이어가 맞았다 데미지 {damageInfo.Value}, 남은 체력{_health}");
         if (_health <= 0f)
         {
