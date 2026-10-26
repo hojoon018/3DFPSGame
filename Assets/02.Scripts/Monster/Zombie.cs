@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using System.Collections;
+using Lean.Pool;
 
 // FSM(유한 상태 머신) : 유한 개의 상태가 있고, 상태마다 행동을 다르게 함으로써 AI를 구현하는 유명한 방법
 // - "상태" : 객체가 가질 수 있는 어떤 조건이나 상황
@@ -19,7 +20,7 @@ public enum ZombieState
     Death, // 죽음 : 쓰러지고 잠시 뒤 사라진다
 }
 
-public class Zombie : MonoBehaviour, IDamageable
+public class Zombie : MonoBehaviour, IDamageable, IPoolable
 {
     [Header("스탯")]
     [SerializeField] private float _detectDistance = 8; // 플레이어를 발견하는 거리
@@ -49,18 +50,42 @@ public class Zombie : MonoBehaviour, IDamageable
     public float MaxHealth => _maxHealth;
     public float Health => _health;
 
-    public event Action OnDamaged;
+    public event Action OnHealthChanged;
+    public event Action<Zombie> OnDied;
 
 
     private ZombieState _state = ZombieState.Idle;
 
-    private void Start()
+    private void Awake()
     {
         _controller = GetComponent<CharacterController>();
-        _startPosition = transform.position;
+        ResetState();
+    }
 
-        // 게임을 시작하면 플레이어를 찾는다
+    private void Start()
+    {
         _player = GameObject.FindGameObjectWithTag("Player");
+    }
+
+    public void OnSpawn()
+    {
+        ResetState();
+    }
+
+    public void OnDespawn()
+    {
+    }
+
+    private void ResetState()
+    {
+        _health = _maxHealth;
+        _state = ZombieState.Idle;
+        _startPosition = transform.position;
+        _currentWaypointIndex = 0;
+        _idleTimer = 0f;
+        _attackTimer = 0f;
+        _controller.enabled = true; // 죽을 때 꺼둔 컨트롤러를 다시 켠다
+        OnHealthChanged?.Invoke();
     }
 
     private void Update()
@@ -101,7 +126,7 @@ public class Zombie : MonoBehaviour, IDamageable
 
         _health -= damageInfo.Value;
 
-        OnDamaged?.Invoke();
+        OnHealthChanged?.Invoke();
 
         StopAllCoroutines();
 
@@ -121,6 +146,7 @@ public class Zombie : MonoBehaviour, IDamageable
         {
             Debug.Log($"{_state} -> Death");
             _state = ZombieState.Death;
+            OnDied?.Invoke(this);
             StartCoroutine(Death_Coroutine());
         }
     }
@@ -138,7 +164,7 @@ public class Zombie : MonoBehaviour, IDamageable
     {
         _controller.enabled = false;
         yield return new WaitForSeconds(0.5f);
-        Destroy(gameObject);
+        LeanPool.Despawn(gameObject);
     }
 
     private void Idle()

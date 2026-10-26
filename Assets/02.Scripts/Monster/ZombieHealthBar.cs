@@ -14,7 +14,7 @@ public class ZombieHealthBar : MonoBehaviour
 
     private void Start()
     {
-        _zombie.OnDamaged += RefreshHealth;
+        _zombie.OnHealthChanged += RefreshHealth;
         RefreshHealth();
     }
 
@@ -22,7 +22,7 @@ public class ZombieHealthBar : MonoBehaviour
     private void LateUpdate()
     {
         // 빌보드 : 체력바가 카메라를 쳐다보게한다
-        _slider.transform.position = Camera.main.transform.forward;
+        _slider.transform.forward = Camera.main.transform.forward;
     }
 
     private void RefreshHealth()
