@@ -14,6 +14,7 @@ public class UI_PlayerStats : MonoBehaviour
     {
         // 플레이어 공격 이벤트 구독
         _player.OnDamaged += RefreshHealth;
+        RefreshHealth();
     }
 
     private void Update()
