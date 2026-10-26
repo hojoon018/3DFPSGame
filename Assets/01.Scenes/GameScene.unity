@@ -323,7 +323,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 99c95919ed2764c4dab98eb518daccb5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UI_Minimap
-  _camera: {fileID: 1693880736}
+  _camera: {fileID: 1693880738}
   _zoomoutButton: {fileID: 2015575186}
   _zoominButton: {fileID: 1133455479}
 --- !u!1 &330585543
@@ -3780,6 +3780,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MinimapCamera
   _target: {fileID: 1537766206}
   _height: 8
+  _minZoom: 3
+  _maxZoom: 20
 --- !u!1 &1894467042
 GameObject:
   m_ObjectHideFlags: 0

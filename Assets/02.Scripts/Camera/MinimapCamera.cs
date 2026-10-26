@@ -4,10 +4,14 @@ using UnityEngine;
 // 미니맵 카메라 : 플레이어 머리 위에서 아래를 내려다보며 따라다닌다
 public class MinimapCamera : MonoBehaviour
 {
+    private const float ZoomStep = 1f;
+
     private Camera _camera;
 
     [SerializeField] private Transform _target;
     [SerializeField] private float _height = 8f;
+    [SerializeField] private float _minZoom = 3f;
+    [SerializeField] private float _maxZoom = 20f;
 
     private void Start()
     {
@@ -16,17 +20,30 @@ public class MinimapCamera : MonoBehaviour
 
     private void Update()
     {
-        // Todo. ZoomIn/ZoomOut 함수로 분리
-
         if (Input.GetKeyDown(KeyCode.Alpha0))
         {
-            _camera.orthographicSize -= 1;
+            ZoomIn();
         }
 
         else if (Input.GetKeyDown(KeyCode.Alpha9))
         {
-            _camera.orthographicSize += 1;
+            ZoomOut();
         }
+    }
+
+    public void ZoomIn()
+    {
+        SetZoom(_camera.orthographicSize - ZoomStep);
+    }
+
+    public void ZoomOut()
+    {
+        SetZoom(_camera.orthographicSize + ZoomStep);
+    }
+
+    private void SetZoom(float size)
+    {
+        _camera.orthographicSize = Mathf.Clamp(size, _minZoom, _maxZoom);
     }
 
     private void LateUpdate()
