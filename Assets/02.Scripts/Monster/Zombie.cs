@@ -47,6 +47,7 @@ public class Zombie : MonoBehaviour, IDamageable, IPoolable
     private float _attackTimer = 0f;
     private Vector3 _startPosition;
     private GameObject _player;
+    private Animator _animator;
 
     private NavMeshAgent _agent;
 
@@ -68,6 +69,7 @@ public class Zombie : MonoBehaviour, IDamageable, IPoolable
     {
         _agent = GetComponent<NavMeshAgent>();
         _player = GameObject.FindGameObjectWithTag("Player");
+        _animator = GetComponentInChildren<Animator>();
         _agent.speed = _moveSpeed;
     }
 
@@ -142,12 +144,14 @@ public class Zombie : MonoBehaviour, IDamageable, IPoolable
 
             // 잠깐 멈칫 하고 싶다
             Debug.Log($"{_state} -> Hit");
+            _animator.SetTrigger("Hit");
             _state = ZombieState.Hit;
             StartCoroutine(Hit_Coroutine());
         }
         else
         {
             Debug.Log($"{_state} -> Death");
+            _animator.SetTrigger("Death");
             _state = ZombieState.Death;
             OnDied?.Invoke(this);
             StartCoroutine(Death_Coroutine());
@@ -157,7 +161,7 @@ public class Zombie : MonoBehaviour, IDamageable, IPoolable
     private IEnumerator Hit_Coroutine()
     {
         StopAgent();
-        yield return new WaitForSeconds(0.3f);
+        yield return new WaitForSeconds(0.5f);
 
         // 맞았으니 쫓아온다
         Debug.Log($"{_state} -> Trace");
@@ -167,15 +171,13 @@ public class Zombie : MonoBehaviour, IDamageable, IPoolable
     private IEnumerator Death_Coroutine()
     {
         StopAgent();
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(2f);
         LeanPool.Despawn(gameObject);
     }
 
     private void Idle()
     {
         StopAgent();
-
-        // Todo. Idle 애니메이션 실행
 
         // 대기 : 제자리에서 플레이어를 기다린다
 
@@ -185,6 +187,7 @@ public class Zombie : MonoBehaviour, IDamageable, IPoolable
         {
             _idleTimer = 0f;
             Debug.Log($"{_state} -> Trace");
+            _animator.SetTrigger("IdleToMove");
             _state = ZombieState.Trace;
             return;
         }
@@ -197,6 +200,7 @@ public class Zombie : MonoBehaviour, IDamageable, IPoolable
             {
                 _idleTimer = 0f;
                 Debug.Log($"{_state} -> Patrol");
+                _animator.SetTrigger("IdleToMove");
                 _state = ZombieState.Patrol;
             }
         }
@@ -225,6 +229,7 @@ public class Zombie : MonoBehaviour, IDamageable, IPoolable
         // 등록된 순찰 지점이 없다면 Idle 상태로 유지한다
         if (_waypoints == null || _waypoints.Length == 0)
         {
+            _animator.SetTrigger("MoveToIdle");
             _state = ZombieState.Idle;
             return;
         }
@@ -244,6 +249,7 @@ public class Zombie : MonoBehaviour, IDamageable, IPoolable
         {
             _currentWaypointIndex = (_currentWaypointIndex + 1) % _waypoints.Length;
             Debug.Log($"{_state} -> Idle");
+            _animator.SetTrigger("MoveToIdle");
             _state = ZombieState.Idle;
             return;
         }
@@ -271,6 +277,7 @@ public class Zombie : MonoBehaviour, IDamageable, IPoolable
         {
             _attackTimer = 0f;
             Debug.Log($"{_state} -> Attack");
+            _animator.SetTrigger("MoveToAttackDelay");
             _state = ZombieState.Attack;
             return;
         }
@@ -287,6 +294,7 @@ public class Zombie : MonoBehaviour, IDamageable, IPoolable
         if (Vector3.Distance(transform.position, _startPosition) < _agent.stoppingDistance)
         {
             Debug.Log($"{_state} -> Idle");
+            _animator.SetTrigger("MoveToIdle");
             _state = ZombieState.Idle;
             return;
         }
@@ -305,23 +313,28 @@ public class Zombie : MonoBehaviour, IDamageable, IPoolable
         if (distance > _attackRange)
         {
             Debug.Log($"{_state} -> Trace");
+            _animator.SetTrigger("AttackMove");
             _state = ZombieState.Trace;
+            return;
         }
 
         _attackTimer += Time.deltaTime;
         if (_attackTimer >= _attackInterval)
         {
-            // Todo. 공격 애니메이션 실행
-
-            DamageInfo info = new DamageInfo()
-            {
-                Value = _attackDamage,
-                HitPoint = _player.transform.position,
-                HitNormal = (transform.position - _player.transform.position).normalized,
-            };
-            _player.GetComponent<IDamageable>().TakeDamage(info);
+            _animator.SetTrigger("StartAttack");
 
             _attackTimer = 0f;
         }
+    }
+
+    public void AttackAction()
+    {
+        DamageInfo info = new DamageInfo()
+        {
+            Value = _attackDamage,
+            HitPoint = _player.transform.position,
+            HitNormal = (transform.position - _player.transform.position).normalized,
+        };
+        _player.GetComponent<IDamageable>().TakeDamage(info);
     }
 }
