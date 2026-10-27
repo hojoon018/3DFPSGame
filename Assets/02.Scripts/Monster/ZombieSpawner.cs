@@ -26,6 +26,9 @@ public class ZombieSpawner : MonoBehaviour
     [SerializeField] private float _timeBetweenWaves = 3f; // 웨이브 사이 휴식 시간
 
     private int _aliveCount = 0;
+    private int _currentWaveNumber = 0; // 추가 : 진행 중인 웨이브 번호(1부터)
+    private int _waveTotalCount = 0; // 추가 : 이번 웨이브 총 좀비 수
+    private int _killedCount = 0; // 추가 : 이번 웨이브에서 처치한 수
 
     private void Start()
     {
@@ -40,6 +43,7 @@ public class ZombieSpawner : MonoBehaviour
         Zombie zombie = LeanPool.Spawn(_zombiePrefab, spawnPoint.position, spawnPoint.rotation);
         zombie.OnDied += HandleZombieDied;
         _aliveCount++;
+        NotifyStatusChanged();
     }
 
     private IEnumerator WaveLoop_Coroutine()
@@ -48,6 +52,12 @@ public class ZombieSpawner : MonoBehaviour
 
         for (int i = 0; i < _waves.Length; i++)
         {
+            _currentWaveNumber = i + 1;
+            _waveTotalCount = _waves[i].ZombieCount;
+            _killedCount = 0;
+            NotifyWaveStarted();
+            NotifyStatusChanged();
+
             Debug.Log($"웨이브 {i + 1} 시작");
             yield return StartCoroutine(RunWave_Coroutine(_waves[i]));
 
@@ -79,5 +89,30 @@ public class ZombieSpawner : MonoBehaviour
     {
         zombie.OnDied -= HandleZombieDied;
         _aliveCount--;
+        _killedCount++;
+        NotifyStatusChanged();
+    }
+
+    private WaveStatus CreateStatus()
+    {
+        return new WaveStatus
+        {
+            RemainingCount = _waveTotalCount - _killedCount,
+            WaveTotalCount = _waveTotalCount,
+            AliveCount = _aliveCount,
+            MaxAliveCount = _maxAliveCount,
+        };
+    }
+
+    private void NotifyWaveStarted()
+    {
+        Debug.Log($"[알림] WAVE {_currentWaveNumber}");
+    }
+
+    private void NotifyStatusChanged()
+    {
+        WaveStatus status = CreateStatus();
+        Debug.Log(
+            $"[알림] 남은 {status.RemainingCount}/{status.WaveTotalCount}, 필드 {status.AliveCount}/{status.MaxAliveCount}");
     }
 }

@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using System.Collections;
 using Lean.Pool;
+using UnityEngine.AI;
 
 // FSM(유한 상태 머신) : 유한 개의 상태가 있고, 상태마다 행동을 다르게 함으로써 AI를 구현하는 유명한 방법
 // - "상태" : 객체가 가질 수 있는 어떤 조건이나 상황
@@ -20,6 +21,7 @@ public enum ZombieState
     Death, // 죽음 : 쓰러지고 잠시 뒤 사라진다
 }
 
+[RequireComponent(typeof(NavMeshAgent))]
 public class Zombie : MonoBehaviour, IDamageable, IPoolable
 {
     [Header("스탯")]
@@ -43,9 +45,10 @@ public class Zombie : MonoBehaviour, IDamageable, IPoolable
     private int _currentWaypointIndex = 0;
     private float _idleTimer = 0f;
     private float _attackTimer = 0f;
-    private CharacterController _controller;
     private Vector3 _startPosition;
     private GameObject _player;
+
+    private NavMeshAgent _agent;
 
     public float MaxHealth => _maxHealth;
     public float Health => _health;
@@ -58,13 +61,14 @@ public class Zombie : MonoBehaviour, IDamageable, IPoolable
 
     private void Awake()
     {
-        _controller = GetComponent<CharacterController>();
         ResetState();
     }
 
     private void Start()
     {
+        _agent = GetComponent<NavMeshAgent>();
         _player = GameObject.FindGameObjectWithTag("Player");
+        _agent.speed = _moveSpeed;
     }
 
     public void OnSpawn()
@@ -84,7 +88,6 @@ public class Zombie : MonoBehaviour, IDamageable, IPoolable
         _currentWaypointIndex = 0;
         _idleTimer = 0f;
         _attackTimer = 0f;
-        _controller.enabled = true; // 죽을 때 꺼둔 컨트롤러를 다시 켠다
         OnHealthChanged?.Invoke();
     }
 
@@ -154,6 +157,7 @@ public class Zombie : MonoBehaviour, IDamageable, IPoolable
     private IEnumerator Hit_Coroutine()
     {
         yield return new WaitForSeconds(0.3f);
+        StopAgent();
 
         // 맞았으니 쫓아온다
         Debug.Log($"{_state} -> Trace");
@@ -162,13 +166,16 @@ public class Zombie : MonoBehaviour, IDamageable, IPoolable
 
     private IEnumerator Death_Coroutine()
     {
-        _controller.enabled = false;
+        StopAgent();
+
         yield return new WaitForSeconds(0.5f);
         LeanPool.Despawn(gameObject);
     }
 
     private void Idle()
     {
+        StopAgent();
+
         // Todo. Idle 애니메이션 실행
 
         // 대기 : 제자리에서 플레이어를 기다린다
@@ -194,6 +201,12 @@ public class Zombie : MonoBehaviour, IDamageable, IPoolable
                 _state = ZombieState.Patrol;
             }
         }
+    }
+
+    private void StopAgent()
+    {
+        _agent.ResetPath(); // 에이전트의 목적지 삭제
+        _agent.velocity = Vector3.zero; // 미끄럼 방지를 위해 가속도 0
     }
 
     // 순찰 : 지정된 순찰 지점을 순서대로 이동한다
@@ -237,9 +250,8 @@ public class Zombie : MonoBehaviour, IDamageable, IPoolable
         }
 
         // 목표 지점을 향해 회전하고 이동한다
-        direction.Normalize();
-        transform.forward = direction;
-        _controller.SimpleMove(direction * _patrolSpeed);
+        _agent.speed = _patrolSpeed;
+        _agent.SetDestination(target.position);
     }
 
     // 추격 : 플레이어를 쫓아간다
@@ -264,18 +276,16 @@ public class Zombie : MonoBehaviour, IDamageable, IPoolable
             return;
         }
 
-        Vector3 direction = _player.transform.position - transform.position;
-        direction.y = 0f;
-        direction.Normalize();
-
-        transform.forward = direction;
-        _controller.SimpleMove(direction * _moveSpeed);
+        // SetDestination은 목적지 설정
+        // - 호출할 때마다 목적지를 향해 조금씩 이동 X
+        // - 한 번 세팅하면 내부에서 계속해서 이동
+        _agent.SetDestination(_player.transform.position);
     }
 
     private void ComeBack()
     {
         // 처음 자리에 도착하면 Idle
-        if (Vector3.Distance(transform.position, _startPosition) < 1f)
+        if (Vector3.Distance(transform.position, _startPosition) < _agent.stoppingDistance)
         {
             Debug.Log($"{_state} -> Idle");
             _state = ZombieState.Idle;
@@ -283,17 +293,14 @@ public class Zombie : MonoBehaviour, IDamageable, IPoolable
         }
 
         // 처음 자리로 돌아간다
-        Vector3 direction = _startPosition - transform.position;
-        direction.y = 0f;
-        direction.Normalize();
-
-        transform.forward = direction;
-        _controller.SimpleMove(direction * _moveSpeed);
+        _agent.SetDestination(_startPosition);
     }
 
     // 공격 : 일정 시간마다 플레이어를 때린다.
     private void Attack()
     {
+        StopAgent();
+
         // 플레이어 가까워지면 Trace 상태로 전이한다
         float distance = Vector3.Distance(transform.position, _player.transform.position);
         if (distance > _attackRange)
