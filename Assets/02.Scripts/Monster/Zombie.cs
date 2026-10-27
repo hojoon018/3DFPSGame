@@ -156,8 +156,8 @@ public class Zombie : MonoBehaviour, IDamageable, IPoolable
 
     private IEnumerator Hit_Coroutine()
     {
-        yield return new WaitForSeconds(0.3f);
         StopAgent();
+        yield return new WaitForSeconds(0.3f);
 
         // 맞았으니 쫓아온다
         Debug.Log($"{_state} -> Trace");
@@ -167,7 +167,6 @@ public class Zombie : MonoBehaviour, IDamageable, IPoolable
     private IEnumerator Death_Coroutine()
     {
         StopAgent();
-
         yield return new WaitForSeconds(0.5f);
         LeanPool.Despawn(gameObject);
     }
