@@ -1,7 +1,7 @@
 using UnityEngine;
 using TMPro;
 
-public class UI_WaveInfo : MonoBehaviour, IWaveObserver
+public class UI_WaveInfo : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI _waveText;
     [SerializeField] private TextMeshProUGUI _remainingText;
@@ -19,12 +19,14 @@ public class UI_WaveInfo : MonoBehaviour, IWaveObserver
 
     private void OnEnable()
     {
-        _spawner.AddObserver(this);
+        _spawner.OnWaveStarted += ShowWave;
+        _spawner.OnWaveStatusChanged += ShowStatus;
     }
 
     private void OnDisable()
     {
-        _spawner.RemoveObserver(this);
+        _spawner.OnWaveStarted -= ShowWave;
+        _spawner.OnWaveStatusChanged -= ShowStatus;
     }
 
     // IWaveObserver 구현: 알림을 받으면 화면에 표시한다

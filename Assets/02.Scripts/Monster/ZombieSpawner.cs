@@ -31,19 +31,8 @@ public class ZombieSpawner : MonoBehaviour
     private int _waveTotalCount = 0; // 추가 : 이번 웨이브 총 좀비 수
     private int _killedCount = 0; // 추가 : 이번 웨이브에서 처치한 수
 
-    private readonly List<IWaveObserver> _observers = new List<IWaveObserver>();
-
-    public void AddObserver(IWaveObserver observer)
-    {
-        if (_observers.Contains(observer)) return; // 중복 등록 방지
-        _observers.Add(observer);
-    }
-
-    public void RemoveObserver(IWaveObserver observer)
-    {
-        _observers.Remove(observer);
-    }
-
+    public event Action<int> OnWaveStarted;
+    public event Action<WaveStatus> OnWaveStatusChanged;
 
     private void Start()
     {
@@ -121,18 +110,11 @@ public class ZombieSpawner : MonoBehaviour
 
     private void NotifyWaveStarted()
     {
-        foreach (IWaveObserver observer in _observers)
-        {
-            observer.OnWaveStarted(_currentWaveNumber);
-        }
+        OnWaveStarted?.Invoke(_currentWaveNumber);
     }
 
     private void NotifyStatusChanged()
     {
-        WaveStatus status = CreateStatus();
-        foreach (IWaveObserver observer in _observers)
-        {
-            observer.OnWaveStatusChanged(status);
-        }
+        OnWaveStatusChanged?.Invoke(CreateStatus());
     }
 }
