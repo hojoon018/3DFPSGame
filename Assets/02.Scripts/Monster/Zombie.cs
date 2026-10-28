@@ -1,6 +1,5 @@
 using System;
 using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
 using Lean.Pool;
 using UnityEngine.AI;
@@ -120,6 +119,8 @@ public class Zombie : MonoBehaviour, IDamageable, IPoolable
             { ZombieState.Trace, new ZombieTraceState(this) },
             { ZombieState.Comeback, new ZombieComebackState(this) },
             { ZombieState.Attack, new ZombieAttackState(this) },
+            { ZombieState.Hit, new ZombieHitState(this) },
+            { ZombieState.Death, new ZombieDeathState(this) },
         };
     }
 
@@ -140,9 +141,6 @@ public class Zombie : MonoBehaviour, IDamageable, IPoolable
     private void Update()
     {
         if (GameManager.Instance.State != GameState.Playing) return;
-
-        // 임시: Hit/Death는 아직 코루틴이 처리한다. Step 3에서 이 줄을 지운다
-        if (_state == ZombieState.Hit || _state == ZombieState.Death) return;
 
         _currentState.Execute();
     }
@@ -212,8 +210,6 @@ public class Zombie : MonoBehaviour, IDamageable, IPoolable
 
         OnHealthChanged?.Invoke();
 
-        StopAllCoroutines();
-
         if (_health > 0f)
         {
             // Todo. 맞은 부위에 피 스프레이 실행하고 싶다
@@ -222,35 +218,13 @@ public class Zombie : MonoBehaviour, IDamageable, IPoolable
             bloodSpray.transform.forward = damageInfo.HitNormal;
 
             // 잠깐 멈칫 하고 싶다
-            Debug.Log($"{_state} -> Hit");
-            _animator.SetTrigger("Hit");
-            _state = ZombieState.Hit;
-            StartCoroutine(Hit_Coroutine());
+            ChangeState(ZombieState.Hit);
         }
         else
         {
-            Debug.Log($"{_state} -> Death");
-            _animator.SetTrigger("Death");
-            _state = ZombieState.Death;
+            ChangeState(ZombieState.Death);
             OnDied?.Invoke(this);
-            StartCoroutine(Death_Coroutine());
         }
-    }
-
-    private IEnumerator Hit_Coroutine()
-    {
-        StopMoving();
-        yield return new WaitForSeconds(0.5f);
-
-        // 맞았으니 쫓아온다
-        ChangeState(ZombieState.Trace);
-    }
-
-    private IEnumerator Death_Coroutine()
-    {
-        StopMoving();
-        yield return new WaitForSeconds(2f);
-        LeanPool.Despawn(gameObject);
     }
 
     public void AttackAction()
