@@ -47,6 +47,7 @@ public class Zombie : MonoBehaviour, IDamageable, IPoolable
 
     private Dictionary<ZombieState, IZombieState> _states;
     private IZombieState _currentState;
+    private PatrolRoute _patrolRoute;
 
     private Vector3 _startPosition;
     private GameObject _player;
@@ -68,6 +69,8 @@ public class Zombie : MonoBehaviour, IDamageable, IPoolable
     public float RoamRadius => _roamRadius;
     public Vector3 StartPosition => _startPosition;
     public Vector3 PlayerPosition => _player.transform.position;
+    public PatrolRoute PatrolRoute => _patrolRoute;
+    public bool HasPatrolRoute => _patrolRoute != null && _patrolRoute.Count > 0;
 
     public event Action OnHealthChanged;
     public event Action<Zombie> OnDied;
@@ -99,8 +102,15 @@ public class Zombie : MonoBehaviour, IDamageable, IPoolable
     {
     }
 
+    // 스포너가 스폰 직후 호출한다
+    public void SetPatrolRoute(PatrolRoute route)
+    {
+        _patrolRoute = route;
+    }
+
     private void ResetState()
     {
+        _patrolRoute = null; // 이전 삶의 경로를 지운다
         _health = _maxHealth;
         _startPosition = transform.position;
         OnHealthChanged?.Invoke();
@@ -116,6 +126,7 @@ public class Zombie : MonoBehaviour, IDamageable, IPoolable
         _states = new Dictionary<ZombieState, IZombieState>
         {
             { ZombieState.Idle, new ZombieIdleState(this) },
+            { ZombieState.Patrol, new ZombiePatrolState(this) },
             { ZombieState.Trace, new ZombieTraceState(this) },
             { ZombieState.Comeback, new ZombieComebackState(this) },
             { ZombieState.Attack, new ZombieAttackState(this) },

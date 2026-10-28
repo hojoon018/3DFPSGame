@@ -45,6 +45,10 @@ public class ZombieSpawner : MonoBehaviour
         Transform spawnPoint = _spawnPoints[index];
 
         Zombie zombie = LeanPool.Spawn(_zombiePrefab, spawnPoint.position, spawnPoint.rotation);
+
+        // 스폰 지점에 순찰 경로가 붙어 있으면 넘겨준다 (없으면 null)
+        zombie.SetPatrolRoute(spawnPoint.GetComponent<PatrolRoute>());
+
         zombie.OnDied += HandleZombieDied;
         _aliveCount++;
         NotifyStatusChanged();
