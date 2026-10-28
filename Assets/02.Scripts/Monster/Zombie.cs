@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using Lean.Pool;
 using UnityEngine.AI;
 
@@ -14,6 +15,7 @@ public enum ZombieState
 {
     Idle, // 대기 : 제자리에서 플레이어를 기다린다
     Patrol, // 순찰 : 순찰 지점을 순서대로 이동한다
+    Roaming, // 배회 : 시작 지점 반경 안의 무작위 지점으로 이동한다 (Step 5에서 구현)
     Trace, // 추격 : 플레이어를 쫓아간다
     Comeback, // 복귀 : 처음 자리로 돌아간다
     Attack, // 공격 : 일정 시간마다 플레이어를 때린다
@@ -42,6 +44,12 @@ public class Zombie : MonoBehaviour, IDamageable, IPoolable
     [SerializeField] private float _idleWaitTime = 2f; // 지점 도착 후 대기 시간
     [SerializeField] private float _patrolSpeed = 2.5f; // 순찰 이동 속도
 
+    [Header("로밍 설정")]
+    [SerializeField] private float _roamRadius = 6f; // 시작 지점에서 배회할 반경
+
+    private Dictionary<ZombieState, IZombieState> _states;
+    private IZombieState _currentState;
+
     private int _currentWaypointIndex = 0;
     private float _idleTimer = 0f;
     private float _attackTimer = 0f;
@@ -53,6 +61,18 @@ public class Zombie : MonoBehaviour, IDamageable, IPoolable
 
     public float MaxHealth => _maxHealth;
     public float Health => _health;
+
+    // 상태들이 읽는 값
+    public float DetectDistance => _detectDistance;
+    public float ComebackDistance => _comebackDistance;
+    public float AttackRange => _attackRange;
+    public float AttackInterval => _attackInterval;
+    public float MoveSpeed => _moveSpeed;
+    public float PatrolSpeed => _patrolSpeed;
+    public float IdleWaitTime => _idleWaitTime;
+    public float RoamRadius => _roamRadius;
+    public Vector3 StartPosition => _startPosition;
+    public Vector3 PlayerPosition => _player.transform.position;
 
     public event Action OnHealthChanged;
     public event Action<Zombie> OnDied;
@@ -135,6 +155,59 @@ public class Zombie : MonoBehaviour, IDamageable, IPoolable
                 Attack();
                 break;
         }
+    }
+
+    // 상태들이 시키는 행동
+    public float DistanceTo(Vector3 position)
+    {
+        return Vector3.Distance(transform.position, position);
+    }
+
+    public float DistanceToPlayer()
+    {
+        return DistanceTo(PlayerPosition);
+    }
+
+    // 속도를 항상 함께 지정해서, 이전 상태의 속도가 남지 않게 한다
+    public void MoveTo(Vector3 destination, float speed)
+    {
+        _agent.speed = speed;
+        _agent.SetDestination(destination);
+    }
+
+    public void StopMoving()
+    {
+        if (!_agent.isOnNavMesh) return; // 내비메시 위에 올라가기 전에는 멈출 경로도 없다
+
+        _agent.ResetPath();
+        _agent.velocity = Vector3.zero;
+    }
+
+    // 목적지에 도착했는가
+    public bool HasArrived()
+    {
+        return !_agent.pathPending && _agent.remainingDistance <= _agent.stoppingDistance;
+    }
+
+    public void PlayAnimation(string triggerName)
+    {
+        _animator.SetTrigger(triggerName);
+    }
+
+    public void Despawn()
+    {
+        LeanPool.Despawn(gameObject);
+    }
+
+    // 상태 전이 (모든 전이는 여기를 거친다)
+    public void ChangeState(ZombieState next)
+    {
+        Debug.Log($"{_state} -> {next}");
+
+        _currentState?.Exit();
+        _state = next;
+        _currentState = _states[next];
+        _currentState.Enter();
     }
 
     // 대미지를 받는다
