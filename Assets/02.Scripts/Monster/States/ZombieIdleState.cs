@@ -26,13 +26,14 @@ public class ZombieIdleState : IZombieState
             return;
         }
 
-        // 일정 시간 쉬고 나면 순찰을 시작한다
+        // 일정 시간 쉬고 나면 순찰/배회를 시작한다
         _timer += Time.deltaTime;
         if (_timer < _zombie.IdleWaitTime) return;
-        if (!_zombie.HasPatrolRoute) return; // Step 5에서 로밍으로 바꾼다
 
+        // 순찰 경로가 있으면 순찰, 없으면 배회
+        ZombieState next = _zombie.HasPatrolRoute ? ZombieState.Patrol : ZombieState.Roaming;
         _zombie.PlayAnimation("IdleToMove");
-        _zombie.ChangeState(ZombieState.Patrol);
+        _zombie.ChangeState(next);
     }
 
     public void Exit()

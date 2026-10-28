@@ -14,7 +14,7 @@ public enum ZombieState
 {
     Idle, // 대기 : 제자리에서 플레이어를 기다린다
     Patrol, // 순찰 : 순찰 지점을 순서대로 이동한다
-    Roaming, // 배회 : 시작 지점 반경 안의 무작위 지점으로 이동한다 (Step 5에서 구현)
+    Roaming, // 배회 : 시작 지점 반경 안의 무작위 지점으로 이동한다
     Trace, // 추격 : 플레이어를 쫓아간다
     Comeback, // 복귀 : 처음 자리로 돌아간다
     Attack, // 공격 : 일정 시간마다 플레이어를 때린다
@@ -127,6 +127,7 @@ public class Zombie : MonoBehaviour, IDamageable, IPoolable
         {
             { ZombieState.Idle, new ZombieIdleState(this) },
             { ZombieState.Patrol, new ZombiePatrolState(this) },
+            { ZombieState.Roaming, new ZombieRoamingState(this) },
             { ZombieState.Trace, new ZombieTraceState(this) },
             { ZombieState.Comeback, new ZombieComebackState(this) },
             { ZombieState.Attack, new ZombieAttackState(this) },
