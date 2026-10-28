@@ -1,11 +1,13 @@
 using UnityEngine;
 using TMPro;
 
-public class UI_WaveInfo : MonoBehaviour
+public class UI_WaveInfo : MonoBehaviour, IWaveObserver
 {
     [SerializeField] private TextMeshProUGUI _waveText;
     [SerializeField] private TextMeshProUGUI _remainingText;
     [SerializeField] private TextMeshProUGUI _aliveText;
+
+    [SerializeField] private ZombieSpawner _spawner;
 
     private void Awake()
     {
@@ -13,6 +15,27 @@ public class UI_WaveInfo : MonoBehaviour
         _waveText.text = "WAVE -";
         _remainingText.text = string.Empty;
         _aliveText.text = string.Empty;
+    }
+
+    private void OnEnable()
+    {
+        _spawner.AddObserver(this);
+    }
+
+    private void OnDisable()
+    {
+        _spawner.RemoveObserver(this);
+    }
+
+    // IWaveObserver 구현: 알림을 받으면 화면에 표시한다
+    public void OnWaveStarted(int waveNumber)
+    {
+        ShowWave(waveNumber);
+    }
+
+    public void OnWaveStatusChanged(WaveStatus status)
+    {
+        ShowStatus(status);
     }
 
     private void ShowWave(int waveNumber)

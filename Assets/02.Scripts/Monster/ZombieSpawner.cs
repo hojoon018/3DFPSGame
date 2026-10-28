@@ -3,6 +3,7 @@ using System.Collections;
 using System;
 using Random = UnityEngine.Random;
 using Lean.Pool;
+using System.Collections.Generic;
 
 [Serializable]
 public class ZombieWave
@@ -29,6 +30,20 @@ public class ZombieSpawner : MonoBehaviour
     private int _currentWaveNumber = 0; // 추가 : 진행 중인 웨이브 번호(1부터)
     private int _waveTotalCount = 0; // 추가 : 이번 웨이브 총 좀비 수
     private int _killedCount = 0; // 추가 : 이번 웨이브에서 처치한 수
+
+    private readonly List<IWaveObserver> _observers = new List<IWaveObserver>();
+
+    public void AddObserver(IWaveObserver observer)
+    {
+        if (_observers.Contains(observer)) return; // 중복 등록 방지
+        _observers.Add(observer);
+    }
+
+    public void RemoveObserver(IWaveObserver observer)
+    {
+        _observers.Remove(observer);
+    }
+
 
     private void Start()
     {
@@ -106,13 +121,18 @@ public class ZombieSpawner : MonoBehaviour
 
     private void NotifyWaveStarted()
     {
-        Debug.Log($"[알림] WAVE {_currentWaveNumber}");
+        foreach (IWaveObserver observer in _observers)
+        {
+            observer.OnWaveStarted(_currentWaveNumber);
+        }
     }
 
     private void NotifyStatusChanged()
     {
         WaveStatus status = CreateStatus();
-        Debug.Log(
-            $"[알림] 남은 {status.RemainingCount}/{status.WaveTotalCount}, 필드 {status.AliveCount}/{status.MaxAliveCount}");
+        foreach (IWaveObserver observer in _observers)
+        {
+            observer.OnWaveStatusChanged(status);
+        }
     }
 }
