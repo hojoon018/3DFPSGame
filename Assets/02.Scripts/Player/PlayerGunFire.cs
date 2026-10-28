@@ -38,14 +38,11 @@ public class PlayerGunFire : MonoBehaviour
         bool isMouseVisible = Cursor.visible;
         if (!isMouseVisible && Input.GetButton("Fire1") && _fireTimer <= 0f && _bulletCount > 0)
         {
-            if (_animator.GetFloat("MoveMotion") == 0)
-            {
-                _animator.SetTrigger("Attack");
-            }
-
             _bulletCount--;
             _fireTimer = _fireInterval;
             Shoot();
+
+            _animator.SetBool("Fire", true);
 
             // 이 방식은 : 이 모노비헤이비어가 등록한 모든 코루틴을 실행 취소
             // StopAllCoroutines();
@@ -56,6 +53,10 @@ public class PlayerGunFire : MonoBehaviour
                 Debug.Log("재장전 취소!");
                 _reloadingCoroutine = null;
             }
+        }
+        else
+        {
+            _animator.SetBool("Fire", false);
         }
 
         // 2. R키 누르면 총알 재장전
