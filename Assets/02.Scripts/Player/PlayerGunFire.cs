@@ -1,11 +1,16 @@
 using System;
 using UnityEngine;
 using System.Collections;
+using Lean.Pool;
 
 // 마우스 왼쪽 버튼을 누르면 바라보는 방향으로 총알을 발사하고 싶다.
 public class PlayerGunFire : MonoBehaviour
 {
     [SerializeField] private ParticleSystem _hitEffectPrefab;
+
+    [Header("레이저")]
+    [SerializeField] private LaserTracer _tracerPrefab; // 총알처럼 날아가는 레이저 선
+    [SerializeField] private Transform _muzzle; // 레이저 시작 위치(총구). 비어 있으면 카메라 위치
 
     [Header("스탯")]
     [SerializeField] private int _maxBulletCount = 30;
@@ -78,6 +83,16 @@ public class PlayerGunFire : MonoBehaviour
         _reloadingCoroutine = null;
     }
 
+    // 총구에서 목표 지점을 향해 날아가는 레이저를 하나 쏜다
+    private void ShowLaser(Vector3 targetPoint)
+    {
+        if (_tracerPrefab == null) return;
+
+        Vector3 startPoint = _muzzle != null ? _muzzle.position : Camera.main.transform.position;
+        LaserTracer tracer = LeanPool.Spawn(_tracerPrefab, startPoint, Quaternion.identity);
+        tracer.Fire(startPoint, targetPoint);
+    }
+
     private void Shoot()
     {
         if (GameManager.Instance.State != GameState.Playing) return;
@@ -95,6 +110,11 @@ public class PlayerGunFire : MonoBehaviour
 
         // 4. 레이를 발사하고, 만약 부딪힌 물체가 있다면 이펙트 표시하기
         bool isHit = Physics.Raycast(ray, out hitInfo, _range);
+
+        // 맞았으면 맞은 자리, 아니면 사거리 끝을 향해 레이저를 쏜다
+        Vector3 targetPoint = isHit ? hitInfo.point : ray.origin + ray.direction * _range;
+        ShowLaser(targetPoint);
+
         if (isHit)
         {
             // Debug.Log($"{hitInfo.collider.name}이 총알을 맞았다. 대미지 : {_damage}");
