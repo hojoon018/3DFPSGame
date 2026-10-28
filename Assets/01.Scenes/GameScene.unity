@@ -3507,6 +3507,11 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1345395954}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &1418917222 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 100060, guid: fcb334eb247ae3e488abb081c847cf09, type: 3}
+  m_PrefabInstance: {fileID: 1807852995}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1459941555
 GameObject:
   m_ObjectHideFlags: 0
@@ -3944,6 +3949,7 @@ MonoBehaviour:
   _throwPower: 15
   _minThrowTimer: 1
   _maxThrowTimer: 3
+  _throwTimeout: 1.5
 --- !u!114 &1537766212
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4421,6 +4427,19 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 400060, guid: fcb334eb247ae3e488abb081c847cf09, type: 3}
   m_PrefabInstance: {fileID: 1807852995}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1592033562
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1418917222}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c37814cf378d691418a51ac636eedac0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerAnimationEvents
+  _bombFire: {fileID: 1537766211}
 --- !u!1 &1597198427
 GameObject:
   m_ObjectHideFlags: 0
@@ -5124,7 +5143,10 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 400046, guid: fcb334eb247ae3e488abb081c847cf09, type: 3}
       insertIndex: -1
       addedObject: {fileID: 556338239}
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 100060, guid: fcb334eb247ae3e488abb081c847cf09, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1592033562}
   m_SourcePrefab: {fileID: 100100000, guid: fcb334eb247ae3e488abb081c847cf09, type: 3}
 --- !u!1 &1832516643
 GameObject:
