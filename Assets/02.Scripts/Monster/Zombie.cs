@@ -62,20 +62,22 @@ public class Zombie : MonoBehaviour, IDamageable, IPoolable
 
     private void Awake()
     {
+        // 풀에서 처음 꺼낼 때 OnSpawn이 Start보다 먼저 불리므로 Awake에서 캐싱한다
+        _agent = GetComponent<NavMeshAgent>();
+        _animator = GetComponentInChildren<Animator>();
         ResetState();
     }
 
     private void Start()
     {
-        _agent = GetComponent<NavMeshAgent>();
         _player = GameObject.FindGameObjectWithTag("Player");
-        _animator = GetComponentInChildren<Animator>();
         _agent.speed = _moveSpeed;
     }
 
     public void OnSpawn()
     {
         ResetState();
+        ResetAnimator();
     }
 
     public void OnDespawn()
@@ -91,6 +93,20 @@ public class Zombie : MonoBehaviour, IDamageable, IPoolable
         _idleTimer = 0f;
         _attackTimer = 0f;
         OnHealthChanged?.Invoke();
+    }
+
+    // 재사용되는 좀비가 이전 애니메이션 상태(Death 등)와 남은 트리거를 물려받지 않도록 초기화한다
+    private void ResetAnimator()
+    {
+        foreach (AnimatorControllerParameter parameter in _animator.parameters)
+        {
+            if (parameter.type == AnimatorControllerParameterType.Trigger)
+            {
+                _animator.ResetTrigger(parameter.name);
+            }
+        }
+
+        _animator.Rebind(); // 기본 상태(Idle)로 되돌린다
     }
 
     private void Update()

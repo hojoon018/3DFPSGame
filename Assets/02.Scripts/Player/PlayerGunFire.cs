@@ -18,9 +18,13 @@ public class PlayerGunFire : MonoBehaviour
     private int _bulletCount = 0;
     private Coroutine _reloadingCoroutine = null;
 
+    private Animator _animator;
+
     private void Start()
     {
         _bulletCount = _maxBulletCount;
+
+        _animator = GetComponentInChildren<Animator>();
     }
 
     private void Update()
@@ -34,6 +38,11 @@ public class PlayerGunFire : MonoBehaviour
         bool isMouseVisible = Cursor.visible;
         if (!isMouseVisible && Input.GetButton("Fire1") && _fireTimer <= 0f && _bulletCount > 0)
         {
+            if (_animator.GetFloat("MoveMotion") == 0)
+            {
+                _animator.SetTrigger("Attack");
+            }
+
             _bulletCount--;
             _fireTimer = _fireInterval;
             Shoot();

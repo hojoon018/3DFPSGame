@@ -18,6 +18,8 @@ public class GameManager : MonoBehaviour
     private GameState _state = GameState.Ready;
     public GameState State => _state;
 
+    private Player _player;
+
     [SerializeField] private TextMeshProUGUI _stateText;
 
     private void Awake()
@@ -29,6 +31,8 @@ public class GameManager : MonoBehaviour
         }
 
         _instance = this;
+
+        _player = FindAnyObjectByType<Player>();
     }
 
     private void Start()
@@ -51,6 +55,8 @@ public class GameManager : MonoBehaviour
     public void GameOver()
     {
         _state = GameState.GameOver;
+
+        _player.GetComponentInChildren<Animator>().SetFloat("MoveMotion", 0f);
 
         _stateText.gameObject.SetActive(true);
         _stateText.text = "게임 오버";

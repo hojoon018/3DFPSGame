@@ -687,4 +687,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cce9be9dc34facf4fb22fba344a5b476, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ZombieHitEvent
-  _zombie: {fileID: 0}
