@@ -32,6 +32,9 @@ public class PlayerBombFire : MonoBehaviour
     private Transform _rightHand;
     private Player _player;
 
+    public int CurrentBombCount => _currentBombCount;
+    public event Action<int> OnBombChanged;
+
     private void Awake()
     {
         _currentBombCount = MaxBombCount;
@@ -118,5 +121,6 @@ public class PlayerBombFire : MonoBehaviour
         bomb.Rigidbody.AddForce(Camera.main.transform.forward * _throwPower * _throwTimer, ForceMode.Impulse);
         _currentBombCount--;
         _timer = 0f;
+        OnBombChanged?.Invoke(_currentBombCount);
     }
 }

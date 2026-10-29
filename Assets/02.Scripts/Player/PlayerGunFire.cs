@@ -25,10 +25,18 @@ public class PlayerGunFire : MonoBehaviour
 
     private Animator _animator;
 
-    private void Start()
+    public int MaxBulletCount => _maxBulletCount;
+    public int BulletCount => _bulletCount;
+
+    public event Action<int, int> OnBulletChanged;
+
+    private void Awake()
     {
         _bulletCount = _maxBulletCount;
+    }
 
+    private void Start()
+    {
         _animator = GetComponentInChildren<Animator>();
     }
 
@@ -44,6 +52,7 @@ public class PlayerGunFire : MonoBehaviour
         if (!isMouseVisible && Input.GetButton("Fire1") && _fireTimer <= 0f && _bulletCount > 0)
         {
             _bulletCount--;
+            OnBulletChanged?.Invoke(_bulletCount, _maxBulletCount);
             _fireTimer = _fireInterval;
             Shoot();
 
@@ -78,6 +87,7 @@ public class PlayerGunFire : MonoBehaviour
         yield return new WaitForSeconds(_reloadingTime);
 
         _bulletCount = _maxBulletCount;
+        OnBulletChanged?.Invoke(_bulletCount, _maxBulletCount);
 
         Debug.Log("재장전 완료!");
         _reloadingCoroutine = null;
