@@ -30,6 +30,7 @@ public class PlayerBombFire : MonoBehaviour
 
     private Animator _animator;
     private Transform _rightHand;
+    private Player _player;
 
     private void Awake()
     {
@@ -37,6 +38,7 @@ public class PlayerBombFire : MonoBehaviour
 
         _animator = GetComponentInChildren<Animator>();
         _rightHand = _animator.GetBoneTransform(HumanBodyBones.RightHand);
+        _player = GetComponent<Player>();
     }
 
     private void Update()
@@ -59,7 +61,7 @@ public class PlayerBombFire : MonoBehaviour
         }
 
         // 1. 마우스 오른쪽 버튼 입력 받기
-        if (Input.GetButtonDown("Fire2") && _currentBombCount > 0)
+        if (Input.GetButtonDown("Fire2") && _currentBombCount > 0 && _player.WeaponMode == WeaponMode.Normal)
         {
             _isCharging = true;
             _timer = _minThrowTimer;
