@@ -4848,6 +4848,7 @@ GameObject:
   - component: {fileID: 1537766211}
   - component: {fileID: 1537766212}
   - component: {fileID: 1537766213}
+  - component: {fileID: 1537766214}
   m_Layer: 7
   m_Name: Player
   m_TagString: Player
@@ -5013,6 +5014,18 @@ MonoBehaviour:
   _sniperZoom: {fileID: 833535507}
   _normalPov: 60
   _sniperPov: 15
+--- !u!114 &1537766214
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1537766202}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e30bb43b94e62843bf731b1365b2732, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerMeleeAttack
 --- !u!1 &1562327220
 GameObject:
   m_ObjectHideFlags: 0
