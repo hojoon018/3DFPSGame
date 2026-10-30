@@ -6315,6 +6315,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMeleeAttack
   _katanaCollider: {fileID: 1929444362}
+  _meleeHitMode: 1
+  _range: 2
+  _angle: 90
+  _targetMask:
+    serializedVersion: 2
+    m_Bits: 768
 --- !u!1001 &1807852995
 PrefabInstance:
   m_ObjectHideFlags: 0
