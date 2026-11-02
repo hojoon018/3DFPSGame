@@ -83,3 +83,7 @@ crashlytics-build.properties
 # Gemini CLI
 .gemini/
 gha-creds-*.json
+
+# 보고서 스크린샷/작업용 파일 (노션에 업로드, 로컬 보관)
+Report/*.png
+Report/capture.cs.txt
