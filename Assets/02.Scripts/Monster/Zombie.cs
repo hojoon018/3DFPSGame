@@ -37,6 +37,7 @@ public class Zombie : MonoBehaviour, IDamageable, IPoolable
 
     [Header("이펙트")]
     [SerializeField] private GameObject _bloodSprayPrefab;
+    [SerializeField] private float _bloodSprayLifetime = 1f; // 피 이펙트를 보여준 뒤 풀로 반환하기까지의 시간
 
     [Header("순찰 설정")]
     [SerializeField] private float _idleWaitTime = 2f; // 지점 도착 후 대기 시간
@@ -202,7 +203,8 @@ public class Zombie : MonoBehaviour, IDamageable, IPoolable
     // 상태 전이 (모든 전이는 여기를 거친다)
     public void ChangeState(ZombieState next)
     {
-        Debug.Log($"{_state} -> {next}");
+        // 피격마다 호출되는 경로라 Debug.Log(스택 트레이스 수집) 대신 빌드에서 제거되는 GameLogger 사용
+        GameLogger.Log($"{_state} -> {next}");
 
         _currentState?.Exit();
         _state = next;
@@ -225,9 +227,9 @@ public class Zombie : MonoBehaviour, IDamageable, IPoolable
         if (_health > 0f)
         {
             // Todo. 맞은 부위에 피 스프레이 실행하고 싶다
-            GameObject bloodSpray = Instantiate(_bloodSprayPrefab, gameObject.transform);
-            bloodSpray.transform.position = damageInfo.HitPoint;
-            bloodSpray.transform.forward = damageInfo.HitNormal;
+            // 피 이펙트는 루프 파티클이라 직접 회수하지 않으면 계속 쌓인다 → 풀에서 꺼내고 일정 시간 뒤 반환
+            GameObject bloodSpray = LeanPool.Spawn(_bloodSprayPrefab, damageInfo.HitPoint, Quaternion.LookRotation(damageInfo.HitNormal), transform);
+            LeanPool.Despawn(bloodSpray, _bloodSprayLifetime);
 
             // 잠깐 멈칫 하고 싶다
             ChangeState(ZombieState.Hit);

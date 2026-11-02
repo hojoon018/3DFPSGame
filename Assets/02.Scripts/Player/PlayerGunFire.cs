@@ -7,6 +7,7 @@ using Lean.Pool;
 public class PlayerGunFire : MonoBehaviour
 {
     [SerializeField] private ParticleSystem _hitEffectPrefab;
+    [SerializeField] private float _hitEffectLifetime = 1f; // 히트 이펙트를 풀로 반환하기까지의 시간
 
     [Header("레이저")]
     [SerializeField] private LaserTracer _tracerPrefab; // 총알처럼 날아가는 레이저 선
@@ -132,10 +133,12 @@ public class PlayerGunFire : MonoBehaviour
         {
             // Debug.Log($"{hitInfo.collider.name}이 총알을 맞았다. 대미지 : {_damage}");
 
-            ParticleSystem effect = Instantiate(_hitEffectPrefab);
-            effect.transform.position = hitInfo.point; // 맞은 자리
-            effect.transform.forward = hitInfo.normal; // 수직 위치로 회전
+            // 발사마다 Instantiate/Destroy 하던 이펙트를 풀에서 재사용 (맞은 자리, 표면 수직 방향)
+            ParticleSystem effect = LeanPool.Spawn(_hitEffectPrefab, hitInfo.point, Quaternion.LookRotation(hitInfo.normal));
+            ParticleSystem.MainModule main = effect.main;
+            main.stopAction = ParticleSystemStopAction.None; // 프리팹의 Destroy 설정이 풀 오브젝트를 파괴하지 않도록
             effect.Play();
+            LeanPool.Despawn(effect, _hitEffectLifetime);
 
             // 데미지 구조체 만들기
             DamageInfo damageInfo = new DamageInfo();
