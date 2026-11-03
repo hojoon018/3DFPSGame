@@ -98,18 +98,18 @@ Material:
     - _AddPrecomputedVelocity: 0
     - _AlphaClip: 0
     - _AlphaToMask: 0
-    - _BaseFade: 0.3
+    - _BaseFade: 0.45
     - _Blend: 0
     - _BlendModePreserveSpecular: 1
     - _BumpScale: 1
     - _ClearCoatMask: 0
     - _ClearCoatSmoothness: 0
-    - _CoreAlpha: 0.85
+    - _CoreAlpha: 1
     - _Cull: 2
     - _Cutoff: 0.5
     - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
-    - _DissolveNoise: 0.8
+    - _DissolveNoise: 0.3
     - _DstBlend: 0
     - _DstBlendAlpha: 0
     - _EdgeWidth: 0.15
@@ -117,7 +117,7 @@ Material:
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
-    - _InnerGlow: 0.15
+    - _InnerGlow: 0.05
     - _LeadWidth: 0.06
     - _Metallic: 0
     - _NoiseSpeed: 3

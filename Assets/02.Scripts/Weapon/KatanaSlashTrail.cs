@@ -17,9 +17,15 @@ public class KatanaSlashTrail : MonoBehaviour
     [SerializeField] private Transform _base;
     [SerializeField] private Transform _tip;
 
+    [Header("크기")]
+    [SerializeField] private float _tipExtension = 1.8f; // 밑동→칼끝 길이에 곱하는 배율 (1 = 실제 칼 길이, 클수록 큰 초승달)
+    [SerializeField] private float _baseExtension = 0.3f; // 밑동을 칼끝 쪽으로 당기는 비율 (0 = 그대로, 손잡이 근처를 비워 초승달 모양을 만든다)
+    [SerializeField, Range(0f, 1f)] private float _tailTaper = 0.85f; // 오래된 쪽(꼬리)으로 갈수록 폭을 좁히는 정도 (0 = 일정, 1 = 꼬리 끝에서 폭 0)
+
     [Header("궤적")]
     [SerializeField] private Material _material;
-    [SerializeField] private float _lifetime = 0.25f; // 한 지점이 사라지기까지 걸리는 시간 (초)
+    [SerializeField] private float _lifetime = 0.4f; // 한 지점이 사라지기까지 걸리는 시간 (초)
+    [SerializeField] private float _minEmitDuration = 0.2f; // 타격 구간이 짧아도 최소 이 시간(초)만큼은 궤적을 그린다
     [SerializeField] private int _maxSamples = 48;
     [SerializeField] private int _subdivisions = 4; // 샘플 사이를 곡선으로 나누는 개수 (빠르게 휘둘러도 각지지 않게)
 
@@ -31,6 +37,8 @@ public class KatanaSlashTrail : MonoBehaviour
     private Mesh _mesh;
     private RenderParams _renderParams;
     private bool _isEmitting;
+    private bool _isStopRequested;
+    private float _minEmitEndTime;
 
     private void Awake()
     {
@@ -55,6 +63,7 @@ public class KatanaSlashTrail : MonoBehaviour
         // 무기를 바꿨다가 다시 꺼낼 때 이전 궤적이 남아 보이지 않게 비운다.
         _samples.Clear();
         _isEmitting = false;
+        _isStopRequested = false;
     }
 
     private void OnDestroy()
@@ -72,18 +81,25 @@ public class KatanaSlashTrail : MonoBehaviour
 
         _samples.Clear();
         _isEmitting = true;
+        _isStopRequested = false;
+        _minEmitEndTime = Time.time + _minEmitDuration;
         AddSample();
     }
 
-    // 휘두르기 끝: 기록만 멈추고, 이미 남은 궤적은 수명이 다할 때까지 사라지며 보인다.
+    // 휘두르기 끝: 최소 기록 시간이 지나면 기록을 멈추고, 남은 궤적은 수명이 다할 때까지 사라지며 보인다.
     public void StopTrail()
     {
-        _isEmitting = false;
+        _isStopRequested = true;
     }
 
     // 애니메이션으로 칼이 움직인 뒤의 위치를 기록해야 하므로 LateUpdate에서 처리한다.
     private void LateUpdate()
     {
+        if (_isEmitting && _isStopRequested && Time.time >= _minEmitEndTime)
+        {
+            _isEmitting = false;
+        }
+
         if (_isEmitting)
         {
             AddSample();
@@ -100,9 +116,13 @@ public class KatanaSlashTrail : MonoBehaviour
 
     private void AddSample()
     {
+        // 칼날 방향을 따라 밑동과 칼끝을 늘려 실제 칼보다 큰 검기를 그린다.
+        Vector3 basePosition = _base.position;
+        Vector3 blade = _tip.position - basePosition;
+
         TrailSample sample = new TrailSample();
-        sample.Base = _base.position;
-        sample.Tip = _tip.position;
+        sample.Base = basePosition + blade * _baseExtension;
+        sample.Tip = basePosition + blade * _tipExtension;
         sample.Time = Time.time;
         _samples.Add(sample);
     }
@@ -147,6 +167,9 @@ public class KatanaSlashTrail : MonoBehaviour
 
                 // uv.x = 나이(0: 방금 지나감, 1: 곧 사라짐), uv.y = 칼날 위치(0: 밑동, 1: 칼끝)
                 float age = Mathf.Clamp01((now - sampleTime) / _lifetime);
+
+                // 꼬리로 갈수록 밑동을 칼끝 쪽으로 끌어당겨 폭을 좁힌다. 바깥(칼끝) 선은 그대로라 초승달 끝이 날카로워진다.
+                basePosition = Vector3.Lerp(basePosition, tipPosition, age * _tailTaper);
                 _vertices.Add(basePosition);
                 _uvs.Add(new Vector2(age, 0f));
                 _vertices.Add(tipPosition);

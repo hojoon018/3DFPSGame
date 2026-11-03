@@ -36946,8 +36946,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::KatanaSlashTrail
   _base: {fileID: 1698006510}
   _tip: {fileID: 881487316}
+  _tipExtension: 1.8
+  _baseExtension: 0.3
+  _tailTaper: 0.6
   _material: {fileID: 2100000, guid: 978a1ae19adc37044b697d5dd84d1916, type: 2}
-  _lifetime: 0.25
+  _lifetime: 0.4
+  _minEmitDuration: 0.2
   _maxSamples: 48
   _subdivisions: 4
 --- !u!1001 &1932460562
