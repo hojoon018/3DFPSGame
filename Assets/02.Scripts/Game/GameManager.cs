@@ -11,11 +11,8 @@ public enum GameState
     GameOver
 }
 
-public class GameManager : MonoBehaviour
+public class GameManager : SingletonBehaviour<GameManager>
 {
-    private static GameManager _instance = null;
-    public static GameManager Instance => _instance;
-
     private GameState _state = GameState.Ready;
     public GameState State => _state;
 
@@ -26,14 +23,6 @@ public class GameManager : MonoBehaviour
 
     private void Awake()
     {
-        if (_instance != null)
-        {
-            Destroy(gameObject);
-            return;
-        }
-
-        _instance = this;
-
         _player = FindAnyObjectByType<Player>();
     }
 
