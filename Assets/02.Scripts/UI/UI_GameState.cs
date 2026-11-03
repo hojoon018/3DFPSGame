@@ -10,6 +10,7 @@ public class UI_GameState : MonoBehaviour
 
     [SerializeField] private TextMeshProUGUI _stateText;
     [SerializeField] private GameObject _optionPopup;
+    [SerializeField] private GameObject _gameOverPopup;
 
     private GameState _prevState;
     private Coroutine _startTextCoroutine;
@@ -32,6 +33,7 @@ public class UI_GameState : MonoBehaviour
     private void Refresh(GameState state)
     {
         _optionPopup.SetActive(state == GameState.Pause);
+        _gameOverPopup.SetActive(state == GameState.GameOver);
 
         switch (state)
         {
@@ -53,8 +55,9 @@ public class UI_GameState : MonoBehaviour
                 break;
 
             case GameState.GameOver:
+                // "게임 오버"는 게임 오버 팝업의 타이틀로 보여준다.
                 StopStartText();
-                ShowText("게임 오버", Color.red);
+                _stateText.gameObject.SetActive(false);
                 break;
         }
 

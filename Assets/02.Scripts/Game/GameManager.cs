@@ -88,6 +88,8 @@ public class GameManager : SingletonBehaviour<GameManager>
     {
         _player.GetComponentInChildren<Animator>().SetFloat("MoveMotion", 0f);
 
+        // 게임 오버 팝업의 버튼을 누를 수 있도록 커서를 보이게 한다.
+        CursorManager.Instance.UnlockCursor();
         ChangeState(GameState.GameOver);
     }
 
