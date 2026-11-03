@@ -16,6 +16,7 @@ public class PlayerMeleeAttack : MonoBehaviour
     private Player _player;
     private Animator _animator;
     private Katana _katana;
+    private KatanaSlashTrail _slashTrail; // 없으면 궤적 없이 타격만 한다
 
     [Header("부채꼴")]
     [SerializeField] private float _range = 2f;
@@ -28,6 +29,7 @@ public class PlayerMeleeAttack : MonoBehaviour
         _player = GetComponentInParent<Player>();
         _animator = GetComponent<Animator>();
         _katana = _katanaCollider.GetComponent<Katana>();
+        _slashTrail = _katanaCollider.GetComponent<KatanaSlashTrail>();
     }
 
     public void FanAttack()
@@ -94,6 +96,12 @@ public class PlayerMeleeAttack : MonoBehaviour
     // 휘두르기 클립의 타격 시작 프레임에서 애니메이션 이벤트로 호출된다.
     public void OnSlashHitStart()
     {
+        // 궤적은 타격 방식(Collider/Fan)과 상관없이 그린다.
+        if (_slashTrail != null)
+        {
+            _slashTrail.StartTrail();
+        }
+
         if (_meleeHitMode != MeleeHitMode.Collider) return;
 
         _katana.BeginSwing();
@@ -102,6 +110,11 @@ public class PlayerMeleeAttack : MonoBehaviour
     // 휘두르기 클립의 타격 종료 프레임에서 애니메이션 이벤트로 호출된다.
     public void OnSlashHitEnd()
     {
+        if (_slashTrail != null)
+        {
+            _slashTrail.StopTrail();
+        }
+
         if (_meleeHitMode != MeleeHitMode.Collider) return;
 
         _katana.EndSwing();
