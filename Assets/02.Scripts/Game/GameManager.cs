@@ -88,6 +88,7 @@ public class GameManager : SingletonBehaviour<GameManager>
     {
         _player.GetComponentInChildren<Animator>().SetFloat("MoveMotion", 0f);
 
+        Time.timeScale = 0; // 게임 오버 동안 게임 시간을 멈춘다. (Restart에서 다시 1로 되돌린다)
         // 게임 오버 팝업의 버튼을 누를 수 있도록 커서를 보이게 한다.
         CursorManager.Instance.UnlockCursor();
         ChangeState(GameState.GameOver);
