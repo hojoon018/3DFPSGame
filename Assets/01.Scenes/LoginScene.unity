@@ -18311,9 +18311,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 2102465479}
-        m_TargetAssemblyTypeName: UI_LoginScreen, Assembly-CSharp
-        m_MethodName: OnClickLogin
+      - m_Target: {fileID: 1897406056}
+        m_TargetAssemblyTypeName: UI_Login, Assembly-CSharp
+        m_MethodName: Login
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -35079,7 +35079,7 @@ MonoBehaviour:
   _registerButton: {fileID: 518661346}
   _gotoLoginButton: {fileID: 1731882375}
   _messageText: {fileID: 1471543513}
-  _gameSceneName: GameScene
+  _loginScreen: {fileID: 2102465479}
 --- !u!4 &1907473540 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4000013149834228, guid: 6857ff1d3761e21479727f3b27cc8f68, type: 3}
@@ -38605,6 +38605,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UI_LoginScreen
   _loadingSceneName: LoadingScene
+  _login: {fileID: 1897406056}
   _impact: {fileID: 2102465481}
   _fade: {fileID: 1510417085}
   _title: {fileID: 676063831}

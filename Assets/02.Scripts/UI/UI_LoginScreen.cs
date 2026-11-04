@@ -4,10 +4,11 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 // 로그인 화면의 시작 연출과 입력을 담당한다.
-// 계정 검증은 하지 않으며, 로그인 버튼을 누르면 항상 로그인된 것으로 보고 로딩 씬으로 넘어간다.
+// 계정 검증은 UI_Login이 하며, 검증을 통과하면 PlayLoginTransition()으로 연출 후 로딩 씬으로 넘어간다.
 public class UI_LoginScreen : MonoBehaviour
 {
     [SerializeField] private string _loadingSceneName = "LoadingScene";
+    [SerializeField] private UI_Login _login;
 
     [Header("참조")]
     [SerializeField] private UI_ScreenImpact _impact;
@@ -68,7 +69,7 @@ public class UI_LoginScreen : MonoBehaviour
         }
         else if (!isRegisterMode && (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter)))
         {
-            OnClickLogin();
+            _login.Login();
         }
     }
 
@@ -141,8 +142,8 @@ public class UI_LoginScreen : MonoBehaviour
         item.localScale = Vector3.one;
     }
 
-    // 로그인 버튼 (Button OnClick에 연결)
-    public void OnClickLogin()
+    // 로그인 검증 통과 후 UI_Login이 호출한다.
+    public void PlayLoginTransition()
     {
         if (!_isReady || _isLoggingIn) return;
 
