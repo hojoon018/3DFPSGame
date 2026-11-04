@@ -19,7 +19,7 @@ public class UI_LoginScreen : MonoBehaviour
     [SerializeField] private RectTransform[] _panelItems;
     [SerializeField] private TMP_InputField _idInput;
     [SerializeField] private TMP_InputField _passwordInput;
-    [SerializeField] private UI_PopupFeel _signUpPopup;
+    [SerializeField] private TMP_InputField _passwordConfirmInput;
 
     [Header("시작 연출")]
     [SerializeField] private float _fadeInDuration = 0.8f;
@@ -57,17 +57,28 @@ public class UI_LoginScreen : MonoBehaviour
 
     private void Update()
     {
-        if (!_isReady || _isLoggingIn || _signUpPopup.IsOpen) return;
+        if (!_isReady || _isLoggingIn) return;
+
+        // 비밀번호 확인 칸이 보이면 회원가입 모드로 본다.
+        bool isRegisterMode = _passwordConfirmInput.gameObject.activeInHierarchy;
 
         if (Input.GetKeyDown(KeyCode.Tab))
         {
-            TMP_InputField next = _idInput.isFocused ? _passwordInput : _idInput;
-            next.Select();
+            GetNextInput(isRegisterMode).Select();
         }
-        else if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
+        else if (!isRegisterMode && (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter)))
         {
             OnClickLogin();
         }
+    }
+
+    // 아이디 → 비밀번호 → (회원가입 모드면) 비밀번호 확인 → 아이디 순으로 순환한다.
+    private TMP_InputField GetNextInput(bool isRegisterMode)
+    {
+        if (_idInput.isFocused) return _passwordInput;
+        if (_passwordInput.isFocused && isRegisterMode) return _passwordConfirmInput;
+
+        return _idInput;
     }
 
     private IEnumerator Intro_Coroutine()
