@@ -26,23 +26,12 @@ public class UI_Login : MonoBehaviour
     [SerializeField] private TextMeshProUGUI _messageText;
     [SerializeField] private UI_LoginScreen _loginScreen;
 
-    // 계정 규칙
-    // ID: 이메일을 사용한 3~20 글자
-    //   (?=.{3,20}$)                  전체 길이 3~20
-    //   [A-Za-z0-9_+-]+(\.[...]+)*    로컬 부분 ('.'으로 시작/끝나거나 '..' 불가)
-    //   @[A-Za-z0-9-]+(\.[...]+)+     '@' 뒤 도메인, '.'으로 구분된 부분이 하나 이상
-    private static readonly Regex IdRegex = new Regex(
-        @"^(?=.{3,20}$)[A-Za-z0-9_+-]+(\.[A-Za-z0-9_+-]+)*@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)+$");
-
-    // 비밀번호: 대문자 소문자 숫자 기호를 포함한 8~30 글자
-    //   (?=.*[A-Z]) (?=.*[a-z]) (?=.*[0-9]) (?=.*[^A-Za-z0-9])   각각 하나 이상 포함
-    //   [!-~]{8,30}                   공백을 제외한 ASCII 출력 문자(영문/숫자/기호)만 8~30 글자
-    private static readonly Regex PasswordRegex = new Regex(
-        @"^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[^A-Za-z0-9])[!-~]{8,30}$");
-
     private Mode _mode = Mode.Login;
 
     private PlayerPrefsAccountRepository _repository = new PlayerPrefsAccountRepository();
+
+    private AccountIdSpecifiction _idSpec = new AccountIdSpecifiction();
+    private AccountIdSpecifiction _passwordSpec = new AccountIdSpecifiction();
 
     private void Start()
     {
@@ -114,7 +103,6 @@ public class UI_Login : MonoBehaviour
         // - 문자열 치환(규칙에 맞는 문자열을 찾아서 다른 문자열로 변경)
         // - 웹 크롤링 & 파싱
 
-
         // 규칙이 여기서만 쓰일까?
 
         if (string.IsNullOrEmpty(id) || string.IsNullOrEmpty(password))
@@ -123,15 +111,15 @@ public class UI_Login : MonoBehaviour
             return;
         }
 
-        if (!IdRegex.IsMatch(id))
+        if (!_idSpec.IsSatisfiedBy(id))
         {
-            _messageText.text = "아이디는 3~20글자의 이메일 형식이어야 합니다.";
+            _messageText.text = _idSpec.ErrorMessage;
             return;
         }
 
-        if (!PasswordRegex.IsMatch(password))
+        if (!_passwordSpec.IsSatisfiedBy(password))
         {
-            _messageText.text = "비밀번호는 대문자, 소문자, 숫자, 기호를 모두 포함한 8~30글자여야 합니다.";
+            _messageText.text = _passwordSpec.ErrorMessage;
             return;
         }
 
