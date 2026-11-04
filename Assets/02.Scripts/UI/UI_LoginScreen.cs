@@ -162,7 +162,7 @@ public class UI_LoginScreen : MonoBehaviour
 
         yield return Animate(_fadeOutDuration, t => _fade.alpha = t);
 
-        SceneManager.LoadScene(_loadingSceneName);
+        SceneLoader.Load("GameScene");
     }
 
     private void PlaySound(AudioClip clip, float volume)

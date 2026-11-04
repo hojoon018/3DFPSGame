@@ -9,6 +9,6 @@ public class AccountIdSpecifiction
 
     public bool IsSatisfiedBy(string email)
     {
-        return !IdRegex.IsMatch(email);
+        return IdRegex.IsMatch(email);
     }
 }

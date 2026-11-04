@@ -1,6 +1,8 @@
+using System.Collections;
 using System.Text.RegularExpressions;
 using UnityEngine;
 using TMPro;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class UI_Login : MonoBehaviour
@@ -31,7 +33,7 @@ public class UI_Login : MonoBehaviour
     private PlayerPrefsAccountRepository _repository = new PlayerPrefsAccountRepository();
 
     private AccountIdSpecifiction _idSpec = new AccountIdSpecifiction();
-    private AccountIdSpecifiction _passwordSpec = new AccountIdSpecifiction();
+    private AccountPasswordSpecification _passwordSpec = new AccountPasswordSpecification();
 
     private void Start()
     {
