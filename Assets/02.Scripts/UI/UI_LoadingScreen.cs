@@ -17,7 +17,7 @@ public class UI_LoadingScreen : MonoBehaviour
     [Header("참조")]
     [SerializeField] private UI_ScreenImpact _impact;
     [SerializeField] private CanvasGroup _fade;
-    [SerializeField] private Image _progressFill;
+    [SerializeField] private Slider _progressBar;
     [SerializeField] private RectTransform _progressHead;
     [SerializeField] private TextMeshProUGUI _percentText;
     [SerializeField] private TextMeshProUGUI _statusText;
@@ -144,12 +144,9 @@ public class UI_LoadingScreen : MonoBehaviour
     private void SetProgress(float progress)
     {
         _displayedProgress = progress;
-        _progressFill.fillAmount = progress;
+        // 빛나는 머리(_progressHead)는 슬라이더의 핸들이라 value에 맞춰 자동으로 끝 위치에 붙는다.
+        _progressBar.value = progress;
         _percentText.text = $"{Mathf.RoundToInt(progress * 100f)}%";
-
-        // 빛나는 머리 부분을 채워진 끝 위치에 붙인다.
-        RectTransform bar = (RectTransform)_progressFill.transform;
-        _progressHead.anchoredPosition = new Vector2(bar.rect.xMin + bar.rect.width * progress, 0f);
     }
 
     private IEnumerator Tips_Coroutine()
