@@ -28,6 +28,7 @@ public class PlayerGunFire : MonoBehaviour
     private Coroutine _reloadingCoroutine = null;
 
     private Animator _animator;
+    private Player _player;
 
     public int MaxBulletCount => _maxBulletCount;
     public int BulletCount => _bulletCount;
@@ -42,6 +43,7 @@ public class PlayerGunFire : MonoBehaviour
     private void Start()
     {
         _animator = GetComponentInChildren<Animator>();
+        _player = GetComponentInParent<Player>();
     }
 
     private void Update()
@@ -52,8 +54,10 @@ public class PlayerGunFire : MonoBehaviour
         _fireTimer -= Time.deltaTime;
 
         // 1. 마우스 왼쪽 버튼 입력 받기
+        // 근접 모드에서는 좌클릭이 검기 발사(PlayerMeleeAttack)이므로 총을 쏘지 않는다.
         bool isMouseVisible = Cursor.visible;
-        if (!isMouseVisible && Input.GetButton("Fire1") && _fireTimer <= 0f && _bulletCount > 0)
+        bool isMeleeMode = _player != null && _player.WeaponMode == WeaponMode.Melee;
+        if (!isMouseVisible && !isMeleeMode && Input.GetButton("Fire1") && _fireTimer <= 0f && _bulletCount > 0)
         {
             _bulletCount--;
             OnBulletChanged?.Invoke(_bulletCount, _maxBulletCount);
